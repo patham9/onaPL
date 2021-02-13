@@ -453,26 +453,40 @@ heap_add(Priority, Key, E) :- engine_post(E, add(Priority, Key), true).
 
 heap_get(Priority, Key, E) :- engine_post(E, get(Priority, Key), Priority-Key).
 
+memory_init :- create_heap(belief_events_queue), create_heap(concepts_queue).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %control.pl
 
-priority([_, [F,C]], P) :- f_exp([F, C], E), P is E.
+conclusion_priority([_, Truth], ConceptPriority, ParentPriority, ConclusionPriority) :- f_exp(Truth, Expectation), ConclusionPriority is ParentPriority * ConceptPriority * Expectation.
 
-input_event(Event) :- heap_add(1.0, Event, belief_events_queue).
+concept_priority(Term, P) :- heap_get(P, Term, concepts_queue), heap_add(P, Term, concepts_queue).
 
-derive_event(Event) :- priority(Event, P), heap_add(P, Event, belief_events_queue).
+process_event([Term, Truth], ConclusionPriority) :- heap_add(ConclusionPriority, [Term, Truth], belief_events_queue),
+                                                    ( heap_get(OldConceptPriority, Term, concepts_queue)
+                                                    ; true),
+                                                    heap_add(ConclusionPriority, Term, concepts_queue).
 
-inference_step(_) :- (heap_get(Priority, Event, belief_events_queue),
-                      heap_get(Priority, Event2, belief_events_queue),
-                      heap_add(Priority, Event2, belief_events_queue), %undo removal of the second premise (TODO)
-                      inference(Event,Event2,Conclusion), 
-                      derive_event(Conclusion),
-                      write(Conclusion), nl
+input_event(Event) :- process_event(Event, 1.0).
+
+derive_event(ParentPriority, [Premise1Term, Premise1Truth], Premise2, [Term, Truth]) :- concept_priority(Premise1Term, ConceptPriority), 
+                                                                   conclusion_priority([Term, Truth], ConceptPriority, ParentPriority, ConclusionPriority), 
+                                                                   process_event(Event, ConclusionPriority).
+
+inference_step(_) :- ( heap_get(ParentPriority, Premise1, belief_events_queue),
+                       heap_get(Priority2, Premise2, belief_events_queue),
+                       heap_add(Priority2, Premise2, belief_events_queue), %undo removal of the second premise (TODO)
+                       inference(Premise1, Premise2, Conclusion), 
+                       derive_event(ParentPriority, Premise1, Premise2, Conclusion),
+                       write(Conclusion), nl
                      ; true ).
 
-main :- create_heap(belief_events_queue), main(1).
-main(T) :- read(X), (X = 1, write("performing 1 inference steps:"), nl, inference_step(T), write("done with 1 additional inference steps."), nl, main(T+1) ; X \= 1, write("Input: "), write(X), nl, input_event(X), main(T+1)).
-                
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%nars.pl
+
+main :- memory_init, main(1).
+main(T) :- read(X), ( X = 1,  write("performing 1 inference steps:"), nl, inference_step(T), write("done with 1 additional inference steps."), nl, main(T+1)
+                    ; X \= 1, write("Input: "), write(X), nl, input_event(X), main(T+1)).
 
 %test:
 %main.
