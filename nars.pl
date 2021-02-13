@@ -463,8 +463,8 @@ input_event(Event) :- heap_add(1.0, Event, belief_events_queue).
 derive_event(Event) :- priority(Event, P), heap_add(P, Event, belief_events_queue).
 
 inference_step(_) :- (heap_get(Priority, Event, belief_events_queue),
-                      heap_get(Priority, Event2, belief_events_queue),
-                      heap_add(Priority, Event2, belief_events_queue), %undo removal of the second premise (TODO)
+                      heap_get(Priority2, Event2, belief_events_queue),
+                      heap_add(Priority2, Event2, belief_events_queue), %undo removal of the second premise (TODO)
                       inference(Event,Event2,Conclusion), 
                       derive_event(Conclusion),
                       write(Conclusion), nl
