@@ -456,17 +456,17 @@ heap_get(Priority, Key, E) :- engine_post(E, get(Priority, Key), Priority-Key).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %control.pl
 
-priority([_, [F,C]], P) :- f_exp([F, C], E), P is E.
+priority([_, [F,C]], P) :- f_exp([F, C], E), P is 1.0-E.
 
-input_event(Event) :- heap_add(1.0, Event, belief_events_queue).
+input_event(Event) :- heap_add(0.0, Event, belief_events_queue).
 
-derive_event(Event) :- priority(Event, P), heap_add(P, Event, belief_events_queue).
+derive_event(Event, P) :- priority(Event, P), heap_add(P, Event, belief_events_queue).
 
 inference_step(_) :- heap_get(Priority, Premise1, belief_events_queue),
                      heap_get(Priority2, Premise2, belief_events_queue),
                      heap_add(Priority2, Premise2, belief_events_queue), %undo removal of the second premise (TODO)
                      write("Selected premises: Premise1="), write(Premise1), write(" Premise2="), write(Premise2), nl,
-                     findall(Conclusion, ((inference(Premise1, Conclusion) ; inference(Premise1, Premise2, Conclusion)), derive_event(Conclusion), write(Conclusion), write(". Priority="), write(ConclusionPriority), nl), _)
+                     findall(Conclusion, ((inference(Premise1, Conclusion) ; inference(Premise1, Premise2, Conclusion)), derive_event(Conclusion, P), write(Conclusion), write(". Priority="), write(P), nl), _)
                      ; true.
 
 main :- create_heap(belief_events_queue), main(1).
