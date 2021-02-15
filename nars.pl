@@ -474,13 +474,11 @@ derive_event(ParentPriority, [Premise1Term, Premise1Truth], Premise2, [Term, Tru
                                                                                                             conclusion_priority([Term, Truth], ConceptPriority, ParentPriority, ConclusionPriority), 
                                                                                                             process_event(Event, ConclusionPriority).
 
-inference_step(_) :- ( heap_get(ParentPriority, Premise1, belief_events_queue),
-                       heap_get(Priority2, Premise2, belief_events_queue),
-                       heap_add(Priority2, Premise2, belief_events_queue), %undo removal of the second premise (TODO)
-                       inference(Premise1, Premise2, Conclusion), 
-                       derive_event(ParentPriority, Premise1, Premise2, Conclusion, ConclusionPriority),
-                       write(Conclusion), write(". Priority="), write(ConclusionPriority), nl
-                     ; true ).
+inference_step(_) :- heap_get(ParentPriority, Premise1, belief_events_queue),
+                     heap_get(Priority2, Premise2, belief_events_queue),
+                     heap_add(Priority2, Premise2, belief_events_queue), %undo removal of the second premise (TODO)
+                     findall(Conclusion, (inference(Premise1, Premise2, Conclusion), derive_event(ParentPriority, Premise1, Premise2, Conclusion, ConclusionPriority), write(Conclusion), write(". Priority="), write(ConclusionPriority), nl), _)
+                     ; true.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %nars.pl
