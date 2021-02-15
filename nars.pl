@@ -462,13 +462,12 @@ input_event(Event) :- heap_add(1.0, Event, belief_events_queue).
 
 derive_event(Event) :- priority(Event, P), heap_add(P, Event, belief_events_queue).
 
-inference_step(_) :- (heap_get(Priority, Event, belief_events_queue),
-                      heap_get(Priority2, Event2, belief_events_queue),
-                      heap_add(Priority2, Event2, belief_events_queue), %undo removal of the second premise (TODO)
-                      inference(Event,Event2,Conclusion), 
-                      derive_event(Conclusion),
-                      write(Conclusion), nl
-                     ; true ).
+inference_step(_) :- heap_get(Priority, Premise1, belief_events_queue),
+                     heap_get(Priority2, Premise2, belief_events_queue),
+                     heap_add(Priority2, Premise2, belief_events_queue), %undo removal of the second premise (TODO)
+                     write("Selected premises: Premise1="), write(Premise1), write(" Premise2="), write(Premise2), nl,
+                     findall(Conclusion, (inference(Premise1, Conclusion) ; (inference(Premise1, Premise2, Conclusion)), derive_event(Conclusion), write(Conclusion), write(". Priority="), write(ConclusionPriority), nl), _)
+                     ; true.
 
 main :- create_heap(belief_events_queue), main(1).
 main(T) :- read(X), (X = 1 -> write("performing 1 inference steps:"), nl, inference_step(T), write("done with 1 additional inference steps."), nl, main(T+1) 
