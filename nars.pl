@@ -458,26 +458,25 @@ memory_init :- create_heap(belief_events_queue), create_heap(concepts_queue).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %control.pl
 
-conclusion_priority([_, Truth], ConceptPriority, ParentPriority, ConclusionPriority) :- f_exp(Truth, Expectation), ConclusionPriority is ParentPriority * ConceptPriority * Expectation.
+conclusion_priority([_, Truth], ParentPriority, ConceptPriority, ConclusionPriority) :- f_exp(Truth, Expectation), ConclusionPriority is ParentPriority * ConceptPriority * Expectation.
 
 concept_priority(Term, P) :- heap_get(P, Term, concepts_queue), heap_add(P, Term, concepts_queue).
 
-process_event([Term, Truth], ConclusionPriority) :- ground(Truth), ground(Term)
-                                                    -> heap_add(ConclusionPriority, [Term, Truth], belief_events_queue),
-                                                       ( heap_get(OldConceptPriority, Term, concepts_queue) ; true ),
-                                                       heap_add(ConclusionPriority, Term, concepts_queue)
-                                                     ; true.
+process_event([Term, Truth], ConclusionPriority) :- heap_add(ConclusionPriority, [Term, Truth], belief_events_queue),
+                                                    ( heap_get(OldConceptPriority, Term, concepts_queue) ; true ),
+                                                    heap_add(ConclusionPriority, Term, concepts_queue).
 
 input_event(Event) :- process_event(Event, 1.0).
 
-derive_event(ParentPriority, [Premise1Term, Premise1Truth], Premise2, [Term, Truth], ConclusionPriority) :- concept_priority(Premise1Term, ConceptPriority), 
-                                                                                                            conclusion_priority([Term, Truth], ConceptPriority, ParentPriority, ConclusionPriority), 
-                                                                                                            process_event(Event, ConclusionPriority).
+derive_event(ParentPriority, ConceptPriority, Conclusion, ConclusionPriority) :- conclusion_priority(Conclusion, ParentPriority, ConceptPriority, ConclusionPriority), 
+                                                                                 process_event(Conclusion, ConclusionPriority).
 
-inference_step(_) :- heap_get(ParentPriority, Premise1, belief_events_queue),
+inference_step(_) :- heap_get(ParentPriority, Premise1, belief_events_queue), [Premise1Term, _] = Premise1,
+                     concept_priority(Premise1Term, ConceptPriority),
                      heap_get(Priority2, Premise2, belief_events_queue),
                      heap_add(Priority2, Premise2, belief_events_queue), %undo removal of the second premise (TODO)
-                     findall(Conclusion, (inference(Premise1, Premise2, Conclusion), derive_event(ParentPriority, Premise1, Premise2, Conclusion, ConclusionPriority), write(Conclusion), write(". Priority="), write(ConclusionPriority), nl), _)
+                     write("Selected premises: Premise1="), write(Premise1), write(" Premise2="), write(Premise2), nl,
+                     findall(Conclusion, (inference(Premise1, Conclusion) ; (inference(Premise1, Premise2, Conclusion)), derive_event(ParentPriority, ConceptPriority, Conclusion, ConclusionPriority), write(Conclusion), write(". Priority="), write(ConclusionPriority), nl), _)
                      ; true.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
