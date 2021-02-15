@@ -1,0 +1,28 @@
+?- main.
+|: [inheritance(cat,animal), [1.0, 0.9]].
+Input: [inheritance(cat,animal),[1.0,0.9]]
+|: [inheritance(animal,being), [1.0, 0.9]].
+Input: [inheritance(animal,being),[1.0,0.9]]
+|: [inheritance(being,thing), [1.0, 0.9]].
+Input: [inheritance(being,thing),[1.0,0.9]]
+|: 1.
+performing 1 inference steps:
+Selected premises: Premise1=[inheritance(being,thing),[1.0,0.9]] Premise2=[inheritance(animal,being),[1.0,0.9]]
+[inheritance(thing,being),[1,0.4736842105263158]]. Priority=0.26315789473684204
+[inheritance(animal,thing),[1.0,0.81]]. Priority=0.09499999999999997
+[inheritance(thing,animal),[1,0.44751381215469616]]. Priority=0.2762430939226519
+done with 1 additional inference steps.
+|: 1.
+performing 1 inference steps:
+Selected premises: Premise1=[inheritance(animal,being),[1.0,0.9]] Premise2=[inheritance(cat,animal),[1.0,0.9]]
+[inheritance(being,animal),[1,0.4736842105263158]]. Priority=0.26315789473684204
+[inheritance(cat,being),[1.0,0.81]]. Priority=0.09499999999999997
+[inheritance(being,cat),[1,0.44751381215469616]]. Priority=0.2762430939226519
+done with 1 additional inference steps.
+|: 1.
+performing 1 inference steps:
+Selected premises: Premise1=[inheritance(cat,animal),[1.0,0.9]] Premise2=[inheritance(animal,thing),[1.0,0.81]]
+[inheritance(animal,cat),[1,0.4736842105263158]]. Priority=0.26315789473684204
+[inheritance(thing,cat),[1,0.42163100057836905]]. Priority=0.2891844997108155
+[inheritance(cat,thing),[1.0,0.7290000000000001]]. Priority=0.13549999999999995
+done with 1 additional inference steps.
