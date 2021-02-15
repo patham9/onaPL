@@ -5,8 +5,8 @@
 :- [nal].
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %memory.pl
-
 %11.1.2 State accumulation using engines - https://www.swi-prolog.org/pldoc/man?section=engine-state
+
 :- use_module(library(heaps)).
 
 create_heap(E) :- empty_heap(H), engine_create(_, update_heap(H), E).
