@@ -476,7 +476,7 @@ inference_step(_) :- heap_get(ParentPriority, Premise1, belief_events_queue), [P
                      heap_get(Priority2, Premise2, belief_events_queue),
                      heap_add(Priority2, Premise2, belief_events_queue), %undo removal of the second premise (TODO)
                      write("Selected premises: Premise1="), write(Premise1), write(" Premise2="), write(Premise2), nl,
-                     findall(Conclusion, (inference(Premise1, Conclusion) ; (inference(Premise1, Premise2, Conclusion)), derive_event(ParentPriority, ConceptPriority, Conclusion, ConclusionPriority), write(Conclusion), write(". Priority="), write(ConclusionPriority), nl), _)
+                     findall(Conclusion, ((inference(Premise1, Conclusion) ; inference(Premise1, Premise2, Conclusion)), derive_event(ParentPriority, ConceptPriority, Conclusion, ConclusionPriority), write(Conclusion), write(". Priority="), write(ConclusionPriority), nl), _)
                      ; true.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
