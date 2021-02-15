@@ -36,6 +36,6 @@ inference_step(_) :- heap_get(Priority1, Premise1, belief_events_queue),
                      ; true.
 
 main :- create_heap(belief_events_queue), main(1).
-main(T) :- read(X), (X = 1 -> write("performing 1 inference steps:"), nl, inference_step(T), write("done with 1 additional inference steps."), nl, main(T+1) 
-                            ; write("Input: "), write(X), nl, input_event(X), main(T+1)).
+main(T) :- read(X), (X = 1 -> write("performing 1 inference steps:"), nl, inference_step(T), write("done with 1 additional inference steps."), nl
+                            ; write("Input: "), write(X), nl, input_event(X)), main(T+1).
 
